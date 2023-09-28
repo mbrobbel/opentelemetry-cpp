@@ -29,60 +29,15 @@ void OtlpRecordable::SetIdentity(const opentelemetry::trace::SpanContext &span_c
   span_.set_trace_state(span_context.trace_state()->ToHeader());
 }
 
-proto::resource::v1::Resource OtlpRecordable::ProtoResource() const noexcept
-{
-  proto::resource::v1::Resource proto;
-  if (resource_)
-  {
-    OtlpPopulateAttributeUtils::PopulateAttribute(&proto, *resource_);
-  }
-
-  return proto;
-}
-
 const opentelemetry::sdk::resource::Resource *OtlpRecordable::GetResource() const noexcept
 {
   return resource_;
-}
-
-const std::string OtlpRecordable::GetResourceSchemaURL() const noexcept
-{
-  std::string schema_url;
-  if (resource_)
-  {
-    schema_url = resource_->GetSchemaURL();
-  }
-
-  return schema_url;
 }
 
 const opentelemetry::sdk::instrumentationscope::InstrumentationScope *
 OtlpRecordable::GetInstrumentationScope() const noexcept
 {
   return instrumentation_scope_;
-}
-
-const std::string OtlpRecordable::GetInstrumentationLibrarySchemaURL() const noexcept
-{
-  std::string schema_url;
-  if (instrumentation_scope_)
-  {
-    schema_url = instrumentation_scope_->GetSchemaURL();
-  }
-
-  return schema_url;
-}
-
-proto::common::v1::InstrumentationScope OtlpRecordable::GetProtoInstrumentationScope()
-    const noexcept
-{
-  proto::common::v1::InstrumentationScope instrumentation_scope;
-  if (instrumentation_scope_)
-  {
-    instrumentation_scope.set_name(instrumentation_scope_->GetName());
-    instrumentation_scope.set_version(instrumentation_scope_->GetVersion());
-  }
-  return instrumentation_scope;
 }
 
 void OtlpRecordable::SetResource(const sdk::resource::Resource &resource) noexcept

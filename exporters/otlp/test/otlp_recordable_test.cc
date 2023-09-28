@@ -68,25 +68,6 @@ TEST(OtlpRecordable, SetSpanKind)
   EXPECT_EQ(rec.span().kind(), proto::trace::v1::Span_SpanKind::Span_SpanKind_SPAN_KIND_SERVER);
 }
 
-TEST(OtlpRecordable, SetInstrumentationScope)
-{
-  OtlpRecordable rec;
-  auto inst_lib = trace_sdk::InstrumentationScope::Create("test", "v1");
-  rec.SetInstrumentationScope(*inst_lib);
-  auto proto_instr_libr = rec.GetProtoInstrumentationScope();
-  EXPECT_EQ(proto_instr_libr.name(), inst_lib->GetName());
-  EXPECT_EQ(proto_instr_libr.version(), inst_lib->GetVersion());
-}
-
-TEST(OtlpRecordable, SetInstrumentationLibraryWithSchemaURL)
-{
-  OtlpRecordable rec;
-  const std::string expected_schema_url{"https://opentelemetry.io/schemas/1.11.0"};
-  auto inst_lib = trace_sdk::InstrumentationScope::Create("test", "v1", expected_schema_url);
-  rec.SetInstrumentationScope(*inst_lib);
-  EXPECT_EQ(expected_schema_url, rec.GetInstrumentationLibrarySchemaURL());
-}
-
 TEST(OtlpRecordable, SetStartTime)
 {
   OtlpRecordable rec;
@@ -196,40 +177,6 @@ TEST(OtlpRecordable, AddLink)
     EXPECT_EQ(rec.span().links(0).attributes(i).key(), keys[i]);
     EXPECT_EQ(rec.span().links(0).attributes(i).value().int_value(), values[i]);
   }
-}
-
-TEST(OtlpRecordable, SetResource)
-{
-  OtlpRecordable rec;
-  const std::string service_name_key = "service.name";
-  std::string service_name           = "test-otlp";
-  auto resource = resource::Resource::Create({{service_name_key, service_name}});
-  rec.SetResource(resource);
-
-  auto proto_resource     = rec.ProtoResource();
-  bool found_service_name = false;
-  for (int i = 0; i < proto_resource.attributes_size(); i++)
-  {
-    auto attr = proto_resource.attributes(static_cast<int>(i));
-    if (attr.key() == service_name_key && attr.value().string_value() == service_name)
-    {
-      found_service_name = true;
-    }
-  }
-  EXPECT_TRUE(found_service_name);
-}
-
-TEST(OtlpRecordable, SetResourceWithSchemaURL)
-{
-  OtlpRecordable rec;
-  const std::string service_name_key    = "service.name";
-  const std::string service_name        = "test-otlp";
-  const std::string expected_schema_url = "https://opentelemetry.io/schemas/1.11.0";
-  auto resource =
-      resource::Resource::Create({{service_name_key, service_name}}, expected_schema_url);
-  rec.SetResource(resource);
-
-  EXPECT_EQ(expected_schema_url, rec.GetResourceSchemaURL());
 }
 
 // Test non-int single types. Int single types are tested using templates (see IntAttributeTest)
